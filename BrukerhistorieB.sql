@@ -12,7 +12,18 @@ INSERT INTO Togrute
 VALUES ("Nattog fra Trondheim til Bodø", "SJ");
 
 INSERT INTO Togrute
-VALUES ("Morgentog fra Mo i Rana til Bodø", "SJ");
+VALUES ("Morgentog fra Mo i Rana til Trondheim", "SJ");
+
+
+/* Lager en ny tabell som lagrer date for hvilke dager hver togrute kjører */
+
+CREATE TABLE DagerTogruterKjører (
+	"RuteID"	TEXT,
+	"Ukedag"	TEXT CHECK("Ukedag" = "mandag" OR "Ukedag" = "tirsdag" OR "Ukedag" = "onsdag" OR "Ukedag" = "torsdag" OR "Ukedag" = "fredag" OR "Ukedag" = "lørdag" OR "Ukedag" = "søndag"),
+	FOREIGN KEY("RuteID") REFERENCES "Togrute"("RuteID") ON DELETE CASCADE ON UPDATE CASCADE,
+	PRIMARY KEY("RuteID","Ukedag")
+);
+
 
 /* Data for hvilke dager togruter kjører */
 
