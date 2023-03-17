@@ -1,16 +1,19 @@
 import sqlite3
-con = sqlite3.connect('Jernbane.db')
 
-cursor = con.cursor()
-cursor.execute("SELECT * FROM Jernbanestasjon")
-rows = cursor.fetchall()
-print(rows)
+def getTogruter(stasjon, ukedag):
+    con = sqlite3.connect('Jernbane.db')
+    cursor = con.cursor()
+    cursor.execute(
+        """SELECT DagerTogruterKjører.RuteID FROM DagerTogruterKjører 
+        INNER JOIN 'Stasjon på rute' ON DagerTogruterKjører.RuteID = 'Stasjon på rute'.RuteID 
+        WHERE Ukedag =:dag AND JernbanestasjonNavn =:navn""",
+        {"dag": ukedag, "navn": stasjon}
+        )
+    
+    togruter = cursor.fetchall()
+    
 
 
-cursor.execute("SELECT * FROM 'Stasjon på rute'")
-rows2 = cursor.fetchall()
-print(rows2)
+    con.close()
+    print(togruter)
 
-
-
-con.close()
