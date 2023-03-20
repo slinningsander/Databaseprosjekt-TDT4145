@@ -174,7 +174,7 @@ INSERT INTO Vognforekomst
 VALUES('SJ-sittevogn-1', 5);
 
 
-
+/* Data for vognoppsettene til forskjellige togruter */
 INSERT INTO Vognoppsett
 VALUES('Dagtog fra Trondheim til Bodø', 'SJ-sittevogn-1', 1, 1);
 
@@ -193,3 +193,91 @@ VALUES('Nattog fra Trondheim til Bodø', 'SJ-sovevogn-1', 4, 2);
 
 INSERT INTO Vognoppsett
 VALUES('Morgentog fra Mo i Rana til Trondheim', 'SJ-sittevogn-1', 5, 1);
+
+
+/* Data for delstekninger på Banestrekningene */
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '1', '120.0', 'Dobbeltspor', 'Trondheim', 'Steinkjer');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '2', '280.0', 'Enkeltspor', 'Steinkjer', 'Mosjøen');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '3', '90.0', 'Enkeltspor', 'Mosjøen', 'Mo i Rana');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '4', '170.0', 'Enkeltspor', 'Mo i Rana', 'Fauske');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '5', '60.0', 'Enkeltspor', 'Fauske', 'Bodø');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '6', '90.0', 'Enkeltspor', 'Mo i Rana', 'Mosjøen');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '7', '280.0', 'Enkeltspor', 'Mosjøen', 'Steinkjer');
+
+
+INSERT INTO Delstrekning
+VALUES ('Nordlandsbanen', '8', '120.0', 'Dobbeltspor', 'Steinkjer', 'Trondheim');
+
+
+/* Data for hvilke delstrekninger togrutene kjører på */
+
+INSERT INTO "Kjøres på"
+VALUES ('Dagtog fra Trondheim til Bodø', 'Nordlandsbanen', '1');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Dagtog fra Trondheim til Bodø', 'Nordlandsbanen', '2');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Dagtog fra Trondheim til Bodø', 'Nordlandsbanen', '3');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Dagtog fra Trondheim til Bodø', 'Nordlandsbanen', '4');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Dagtog fra Trondheim til Bodø', 'Nordlandsbanen', '5');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Nattog fra Trondheim til Bodø', 'Nordlandsbanen', '1');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Nattog fra Trondheim til Bodø', 'Nordlandsbanen', '2');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Nattog fra Trondheim til Bodø', 'Nordlandsbanen', '3');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Nattog fra Trondheim til Bodø', 'Nordlandsbanen', '4');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Nattog fra Trondheim til Bodø', 'Nordlandsbanen', '5');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Morgentog fra Mo i Rana til Trondheim', 'Nordlandsbanen', '6');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Morgentog fra Mo i Rana til Trondheim', 'Nordlandsbanen', '7');
+
+
+INSERT INTO "Kjøres på"
+VALUES ('Morgentog fra Mo i Rana til Trondheim', 'Nordlandsbanen', '8');
