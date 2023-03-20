@@ -14,7 +14,6 @@ def getTogruter(stasjon, ukedag):
 
     togruter = cursor.fetchall()
 
-    con.close()
     print(togruter)
 
 # Funksjon for brukerhistorie e)
@@ -27,7 +26,6 @@ def addKunde(navn, epost, telefon):
         {"navn": navn, "epost": epost, "telefon": telefon}
     )
     con.commit()
-    con.close()
 
 
 print("Hei! Velkommen til vårt Jernaneprogram")
@@ -55,9 +53,11 @@ while svar != "avslutt":
         print("Kunde registrert")
         cursor.execute("""SELECT * FROM Kunde""")
         print(cursor.fetchall())
+        
 
 
     elif svar == "avslutt":
+        con.close()
         print("Programmet avsluttes")
         break
 
