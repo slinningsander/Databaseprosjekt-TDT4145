@@ -143,6 +143,53 @@ Values ("Trondheim", "Morgentog fra Mo i Rana til Trondheim", "14:13", NULL);
 
 
 
+/* Data for hvilke vognmodeller som finnes, i dette tilfellet, vognmodellene til SJ. */
+
+INSERT INTO Vognmodell
+VALUES('SJ-sittevogn-1', 'SJ', 3, 4, NULL);
 
 
-    
+INSERT INTO Vognmodell
+VALUES('SJ-sovevogn-1', 'SJ', NULL, NULL, 4);
+
+
+/* Data for vognforekomster til forskjellige vognmodeller. */
+INSERT INTO Vognforekomst
+VALUES('SJ-sittevogn-1', 1);
+
+
+INSERT INTO Vognforekomst
+VALUES('SJ-sittevogn-1', 2);
+
+
+INSERT INTO Vognforekomst
+VALUES('SJ-sittevogn-1', 3);
+
+
+INSERT INTO Vognforekomst
+VALUES('SJ-sovevogn-1', 4);
+
+
+INSERT INTO Vognforekomst
+VALUES('SJ-sittevogn-1', 5);
+
+
+
+INSERT INTO Vognoppsett
+VALUES('Dagtog fra Trondheim til Bodø', 'SJ-sittevogn-1', 1, 1);
+
+
+INSERT INTO Vognoppsett
+VALUES('Dagtog fra Trondheim til Bodø', 'SJ-sittevogn-1', 2, 2);
+
+
+INSERT INTO Vognoppsett
+VALUES('Nattog fra Trondheim til Bodø', 'SJ-sittevogn-1', 3, 1);
+
+
+INSERT INTO Vognoppsett
+VALUES('Nattog fra Trondheim til Bodø', 'SJ-sovevogn-1', 4, 2);
+
+
+INSERT INTO Vognoppsett
+VALUES('Morgentog fra Mo i Rana til Trondheim', 'SJ-sittevogn-1', 5, 1);
