@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 con = sqlite3.connect('Jernbane.db')
 cursor = con.cursor()
@@ -29,33 +30,58 @@ def addKunde(navn, epost, telefon):
     con.commit()
 
 
-def finnRuter(startstasjon, endestasjon, ukedag, klokkeslett):
-    datoer = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
-    nesteDag = datoer[(datoer.index(ukedag)+1) % 7]
+def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
+    dagInt = datetime.datetime.strptime(dato, "%d/%m/%y").weekday()
+    dager = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
+    ukedag = dager[dagInt]
+    nesteDag = dager[(dagInt+1) % 7]
+
     cursor.execute(
-        """SELECT DISTINCT * from Togrute
-        INNER JOIN 'Kjøres på' using(RuteID)
-        INNER JOIN Delstrekning ON ('Kjøres på'.Delstrekningsnummer = Delstrekning.Strekningsnummer)
-        INNER JOIN DagerTogruterKjører Using (ruteid)
-        WHERE (startstasjon =:startstasjon OR endestasjon =:endestasjon) AND (ukedag =:ukedag)
-        GROUP by RuteID
-        HAVING COUNT(ruteid) = 2""",
-        {"startstasjon": startstasjon, "endestasjon": endestasjon,
-        "ukedag": ukedag, "klokkeslett": klokkeslett}
+        """SELECT DISTINCT Stasjonsnummer FROM 'Stasjon på rute'
+        WHERE JernbanestasjonNavn =:startstasjon""", {"startstasjon": startstasjon}
     )
-    print(cursor.fetchall())
+    startStasjonsnummer = cursor.fetchall()[0]
+
     cursor.execute(
-        """SELECT DISTINCT * from Togrute
-        INNER JOIN 'Kjøres på' using(RuteID)
-        INNER JOIN Delstrekning ON ('Kjøres på'.Delstrekningsnummer = Delstrekning.Strekningsnummer)
-        INNER JOIN DagerTogruterKjører Using (ruteid)
-        WHERE (startstasjon =:startstasjon OR endestasjon =:endestasjon) AND (ukedag =:ukedag)
-        GROUP by RuteID
-        HAVING COUNT(ruteid) = 2""",
-        {"startstasjon": startstasjon, "endestasjon": endestasjon,
-        "ukedag": nesteDag, "klokkeslett": klokkeslett}
+        """SELECT DISTINCT Stasjonsnummer FROM 'Stasjon på rute'
+        WHERE JernbanestasjonNavn =:endestasjon""", {"endestasjon": endestasjon}
     )
-    print(cursor.fetchall())
+    endeStasjonsnummer = cursor.fetchall()[0]
+
+    retning = 1
+
+    if startStasjonsnummer>endeStasjonsnummer:
+        retning = 0
+    elif startStasjonsnummer<endeStasjonsnummer:
+        retning = 1
+    else:
+        print("Startstasjon og endestasjon er like")
+
+    cursor.execute(
+    """SELECT Togrute.RuteID, s1.JernbanestasjonNavn AS Startstasjon, s1.Avgangstid, s2.JernbanestasjonNavn AS Endestasjon, s2.Ankomsttid FROM Togrute
+    INNER JOIN 'Stasjon på rute' AS s1 USING (RuteID)
+    INNER JOIN 'Stasjon på rute' AS s2 USING (RuteID)
+    INNER JOIN DagerTogruterKjører USING (RuteID)
+    WHERE Ukedag = :ukedag AND s1.JernbanestasjonNavn = :startstasjon AND s2.JernbanestasjonNavn = :endestasjon AND MedHovedretning=:retning AND s1.Avgangstid > :klokkeslett
+    ORDER BY s1.Avgangstid ASC""",
+    {"ukedag": ukedag, "startstasjon": startstasjon, "endestasjon": endestasjon, "retning": retning, "klokkeslett": klokkeslett}
+    )
+
+    print("Her er alle togruter som går fra", startstasjon, "til", endestasjon, "på", ukedag, "og", nesteDag)
+    for rute in cursor.fetchall():
+        print("Rute:" + rute[0] + " Startstasjon: " + rute[1] + " Avgangstid: " + rute[2] + " Endestasjon: " + rute[3] + " Ankomsttid: " + rute[4])
+    cursor.execute(
+    """SELECT Togrute.RuteID, s1.JernbanestasjonNavn AS Startstasjon, s1.Avgangstid, s2.JernbanestasjonNavn AS Endestasjon, s2.Ankomsttid FROM Togrute
+    INNER JOIN 'Stasjon på rute' AS s1 USING (RuteID)
+    INNER JOIN 'Stasjon på rute' AS s2 USING (RuteID)
+    INNER JOIN DagerTogruterKjører USING (RuteID)
+    WHERE Ukedag = :ukedag AND s1.JernbanestasjonNavn = :startstasjon AND s2.JernbanestasjonNavn = :endestasjon AND MedHovedretning=:retning AND s1.Avgangstid > :klokkeslett
+    ORDER BY s1.Avgangstid ASC""",
+    {"ukedag": nesteDag, "startstasjon": startstasjon, "endestasjon": endestasjon, "retning": retning, "klokkeslett": klokkeslett}
+    )
+    for rute in cursor.fetchall():
+        print("Rute:" + rute[0] + " Startstasjon: " + rute[1] + " Avgangstid: " + rute[2] + " Endestasjon: " + rute[3] + " Ankomsttid: " + rute[4])
+    
 
 
 print("Hei! Velkommen til vårt Jernaneprogram")

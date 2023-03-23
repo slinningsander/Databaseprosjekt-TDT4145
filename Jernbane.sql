@@ -68,8 +68,9 @@ CREATE TABLE "Kundeordre" (
 CREATE TABLE "Togrute" (
 	"RuteID"	TEXT,
 	"OperatørNavn"	TEXT,
-	PRIMARY KEY("RuteID"),
-	FOREIGN KEY("OperatørNavn") REFERENCES "Operatør"("Navn") ON DELETE SET NULL ON UPDATE CASCADE
+	"MedHovedretning"	INTEGER,
+	FOREIGN KEY("OperatørNavn") REFERENCES "Operatør"("Navn") ON DELETE SET NULL ON UPDATE CASCADE,
+	PRIMARY KEY("RuteID")
 );
 
 CREATE TABLE "Togruteforekomst" (
@@ -108,14 +109,15 @@ CREATE TABLE "Vognoppsett" (
 	FOREIGN KEY("Produksjonsnummer") REFERENCES "Vognforekomst"("Produksjonsnummer") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE "Stasjon På Rute" (
+CREATE TABLE "Stasjon på rute" (
 	"JernbanestasjonNavn"	TEXT,
 	"RuteID"	TEXT,
-	"Ankomsttid"	TEXT NOT NULL,
-	"Avgangstid"	TEXT NOT NULL,
-	PRIMARY KEY("JernbanestasjonNavn","RuteID"),
+	"Ankomsttid"	TEXT,
+	"Avgangstid"	TEXT,
+	"Stasjonsnummer"	INTEGER,
+	FOREIGN KEY("RuteID") REFERENCES "Togrute"("RuteID") ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY("JernbanestasjonNavn") REFERENCES "Jernbanestasjon"("Navn") ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY("RuteID") REFERENCES "Togrute"("RuteID") ON DELETE CASCADE ON UPDATE CASCADE
+	PRIMARY KEY("JernbanestasjonNavn","RuteID")
 );
 
 CREATE TABLE "Kjøres på" (

@@ -89,56 +89,56 @@ VALUES ("Morgentog fra Mo i Rana til Trondheim", "fredag");
 /* Dagtog fra Trondheim til Bodø */
 
 INSERT INTO "Stasjon på rute"
-Values ("Trondheim", "Dagtog fra Trondheim til Bodø", NULL, "07:49");
+Values ("Trondheim", "Dagtog fra Trondheim til Bodø", NULL, "07:49", 1);
 
 INSERT INTO "Stasjon på rute"
-Values ("Steinkjer", "Dagtog fra Trondheim til Bodø", "09:51", "09:51");
+Values ("Steinkjer", "Dagtog fra Trondheim til Bodø", "09:51", "09:51", 2);
 
 INSERT INTO "Stasjon på rute"
-Values ("Mosjøen", "Dagtog fra Trondheim til Bodø", "13:20", "13:20");
+Values ("Mosjøen", "Dagtog fra Trondheim til Bodø", "13:20", "13:20", 3);
 
 INSERT INTO "Stasjon på rute"
-Values ("Mo i Rana", "Dagtog fra Trondheim til Bodø", "14:31", "14:31");
+Values ("Mo i Rana", "Dagtog fra Trondheim til Bodø", "14:31", "14:31", 4);
 
 INSERT INTO "Stasjon på rute"
-Values ("Fauske", "Dagtog fra Trondheim til Bodø", "16:49", "16:49");
+Values ("Fauske", "Dagtog fra Trondheim til Bodø", "16:49", "16:49", 5);
 
 INSERT INTO "Stasjon på rute"
-Values ("Bodø", "Dagtog fra Trondheim til Bodø", "17:34", NULL);
+Values ("Bodø", "Dagtog fra Trondheim til Bodø", "17:34", NULL, 6);
 
 /* Nattog fra Mo i Rana til Bodø */
 
 INSERT INTO "Stasjon på rute"
-Values ("Trondheim", "Nattog fra Trondheim til Bodø", NULL, "23:05");
+Values ("Trondheim", "Nattog fra Trondheim til Bodø", NULL, "23:05", 1);
 
 INSERT INTO "Stasjon på rute"
-Values ("Steinkjer", "Nattog fra Trondheim til Bodø", "00:57", "00:57");
+Values ("Steinkjer", "Nattog fra Trondheim til Bodø", "00:57", "00:57", 2);
 
 INSERT INTO "Stasjon på rute"
-Values ("Mosjøen", "Nattog fra Trondheim til Bodø", "04:41", "04:41");
+Values ("Mosjøen", "Nattog fra Trondheim til Bodø", "04:41", "04:41", 3);
 
 INSERT INTO "Stasjon på rute"
-Values ("Mo i Rana", "Nattog fra Trondheim til Bodø", "05:55", "05:55");
+Values ("Mo i Rana", "Nattog fra Trondheim til Bodø", "05:55", "05:55", 4);
 
 INSERT INTO "Stasjon på rute"
-Values ("Fauske", "Nattog fra Trondheim til Bodø", "08:19", "08:19");
+Values ("Fauske", "Nattog fra Trondheim til Bodø", "08:19", "08:19", 5);
 
 INSERT INTO "Stasjon på rute"
-Values ("Bodø", "Nattog fra Trondheim til Bodø", "09:05", NULL);
+Values ("Bodø", "Nattog fra Trondheim til Bodø", "09:05", NULL, 6);
 
 /* Morgentog fra Mo i Rana til Trondheim */
 
 INSERT INTO "Stasjon på rute"
-Values ("Mo i Rana", "Morgentog fra Mo i Rana til Trondheim", NULL, "08:11");
+Values ("Mo i Rana", "Morgentog fra Mo i Rana til Trondheim", NULL, "08:11", 4);
 
 INSERT INTO "Stasjon på rute"
-Values ("Mosjøen", "Morgentog fra Mo i Rana til Trondheim", "09:14", "09:14");
+Values ("Mosjøen", "Morgentog fra Mo i Rana til Trondheim", "09:14", "09:14", 3);
 
 INSERT INTO "Stasjon på rute"
-Values ("Steinkjer", "Morgentog fra Mo i Rana til Trondheim", "12:31", "12:31");
+Values ("Steinkjer", "Morgentog fra Mo i Rana til Trondheim", "12:31", "12:31", 2);
 
 INSERT INTO "Stasjon på rute"
-Values ("Trondheim", "Morgentog fra Mo i Rana til Trondheim", "14:13", NULL);
+Values ("Trondheim", "Morgentog fra Mo i Rana til Trondheim", "14:13", NULL, 1);
 
 
 
