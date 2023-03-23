@@ -82,6 +82,17 @@ def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
     for rute in cursor.fetchall():
         print("Rute:" + rute[0] + " Startstasjon: " + rute[1] + " Avgangstid: " + rute[2] + " Endestasjon: " + rute[3] + " Ankomsttid: " + rute[4])
     
+def finnInformasjon(kundenummer):
+    cursor.execute(
+        """SELECT BillettID, Kjøpstid, TogruteDato, Seteplass, Sengeplass, Vognummer, FraStasjon, TilStasjon  FROM Kundeordre
+        INNER JOIN Billeter USING (Ordrenummer)
+        WHERE KundeID =:kundenummer AND Dato >= strftime('%d/%m/%y', 'now')""",
+        {"kundenummer": kundenummer}
+    )
+    print("Her er dine fremtidige reiser: ")
+    for i in cursor.fetchall():
+        infoList = i.split(",")
+        print("BillettID: ", infoList[0], "Kjøpstid: ", infoList[1], "TogruteDato: ", infoList[2], "Seteplass: ", infoList[3], "Sengeplass: ", infoList[4], "Vognnummer: ", infoList[5], "FraStasjon: ", infoList[6], "TilStasjon: ", infoList[7])
 
 
 print("Hei! Velkommen til vårt Jernaneprogram")
@@ -117,6 +128,10 @@ while svar != "avslutt":
         dato = input("Hvilken dag vil du søke for? ")
         klokkeslett = input("Hvilken klokkeslett vil du søke for? ")
         finnRuter(startstasjon, endestasjon, dato, klokkeslett)
+    
+    elif svar == "finn informasjon":
+        kundenummer = input("Hvilket kundenummer vil du søke for? ")
+        finnInformasjon(kundenummer)
 
     elif svar == "avslutt":
         con.close()
