@@ -2,9 +2,8 @@ import datetime
 import sqlite3
 con = sqlite3.connect('Jernbane.db')
 cursor = con.cursor()
-# Funksjon for brukerhistorie c)
 
-
+# Funksjon for brukerhistorie C
 def getTogruter(stasjon, ukedag):
     cursor.execute(
         """SELECT DagerTogruterKjører.RuteID FROM DagerTogruterKjører 
@@ -17,9 +16,8 @@ def getTogruter(stasjon, ukedag):
 
     print(togruter)
 
-# Funksjon for brukerhistorie e)
 
-
+# Funksjon for brukerhistorie E
 def addKunde(navn, epost, telefon):
     con = sqlite3.connect('Jernbane.db')
     cursor = con.cursor()
@@ -30,6 +28,7 @@ def addKunde(navn, epost, telefon):
     con.commit()
 
 
+# Funksjon for brukerhistorie D
 def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
     dagInt = datetime.datetime.strptime(dato, "%d/%m/%y").weekday()
     dager = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
@@ -82,6 +81,8 @@ def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
     for rute in cursor.fetchall():
         print("Rute:" + rute[0] + " Startstasjon: " + rute[1] + " Avgangstid: " + rute[2] + " Endestasjon: " + rute[3] + " Ankomsttid: " + rute[4])
     
+
+# Funksjon for brukerhistorie H
 def finnInformasjon(kundenummer):
     cursor.execute(
         """SELECT BillettID, Kjøpstid, TogruteDato, Seteplass, Sengeplass, Vognummer, FraStasjon, TilStasjon  FROM Kundeordre
@@ -95,24 +96,32 @@ def finnInformasjon(kundenummer):
         print("BillettID: ", infoList[0], "Kjøpstid: ", infoList[1], "TogruteDato: ", infoList[2], "Seteplass: ", infoList[3], "Sengeplass: ", infoList[4], "Vognnummer: ", infoList[5], "FraStasjon: ", infoList[6], "TilStasjon: ", infoList[7])
 
 
-print("Hei! Velkommen til vårt Jernaneprogram")
+# Funksjon for brukerhistorie G
+def kjøpBillett():
+    pass
 
+
+# Hovedprogram
+print("Hei! Velkommen til vårt Jernbaneprogram \n")
 svar = ""
-
 while svar != "avslutt":
 
     svar = input("""Hva vil du gjøre? 
             \n Skriv 'finn stasjon' for å få alle togruter som går på den oppgitte stasjonen på den oppgitte dagen.
             \n Skriv 'registrer bruker' for å registrere en ny bruker.
-            \n Skriv 'finn rute' for å finne en togrute basert på en startstasjon og en sluttstasjon, med utgangspunkt i en dato og et klokkeslett. 
+            \n Skriv 'finn rute' for å finne en togrute basert på en startstasjon og en sluttstasjon, med utgangspunkt i en dato og et klokkeslett.
+            \n Skriv 'finn informasjon' for å finne informasjon om fremtidige reiser.
             \n Skriv 'avslutt' for å avslutte programmet.\n""")
 
+    # Brukerhistorie C
     if svar == "finn stasjon":
         stasjon = input("Hvilken stasjon vil du finne? ")
         dag = input("Hvilken dag vil du finne? ")
         print("Her er alle togruter som går på stasjonen", stasjon, "på", dag)
         getTogruter(stasjon, dag)
 
+
+    # Brukerhistorie E
     elif svar == "registrer bruker":
         navn = input("Skriv ditt fullstendige navn: ")
         epost = input("Skriv din epost: ")
@@ -122,16 +131,23 @@ while svar != "avslutt":
         cursor.execute("""SELECT * FROM Kunde""")
         print(cursor.fetchall())
 
+    # Brukerhistorie D
     elif svar == "finn rute":
         startstasjon = input("Hvilken startstasjon vil du søke for? ")
         endestasjon = input("Hvilken endestasjon vil du søke for? ")
         dato = input("Hvilken dag vil du søke for? ")
         klokkeslett = input("Hvilken klokkeslett vil du søke for? ")
         finnRuter(startstasjon, endestasjon, dato, klokkeslett)
-    
+
+    # Brukerhistorie H
     elif svar == "finn informasjon":
         kundenummer = input("Hvilket kundenummer vil du søke for? ")
         finnInformasjon(kundenummer)
+    
+    # Brukerhistorie G
+    elif svar == "kjøp billett":
+        kundenummer = input("Hvilket kundenummer vil du søke for? ")
+        kjøpBillett()
 
     elif svar == "avslutt":
         con.close()
