@@ -99,6 +99,33 @@ def finnInformasjon(kundenummer):
 
 # Funksjon for brukerhistorie G
 def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
+    
+    retning = 1
+
+    cursor.execute(
+        """SELECT DISTINCT stasjonsnummer FROM 'Stasjon på rute'
+        WHERE JernbanestasjonNavn =:FraStasjon""",
+        {"FraStasjon": FraStasjon}
+    )
+    fraStasjonNummer = cursor.fetchall()[0][0]
+
+    cursor.execute(
+        """SELECT DISTINCT stasjonsnummer FROM 'Stasjon på rute'
+        WHERE JernbanestasjonNavn =:TilStasjon""",
+        {"TilStasjon": TilStasjon}
+    )
+    tilStasjonNummer = cursor.fetchall()[0][0]
+    
+    
+    if fraStasjonNummer>tilStasjonNummer:
+        retning = 0
+    elif fraStasjonNummer<tilStasjonNummer:
+        retning = 1
+    else:
+        print("Startstasjon og endestasjon er like")
+        return
+    
+    
     cursor.execute(
         """SELECT * FROM Kunde
         WHERE kundenummer =:kundenummer""",
@@ -149,37 +176,23 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
     for i in range(1,maxAntallPlasser+1):
         ledigeSeteplasser.append(i)
     
-    cursor.execute(
-        """SELECT DISTINCT stasjonsnummer FROM 'Stasjon på rute'
-        WHERE JernbanestasjonNavn =:FraStasjon""",
-        {"FraStasjon": FraStasjon}
-    )
-    fraStasjonNummer = cursor.fetchall()[0][0]
 
-    cursor.execute(
-        """SELECT DISTINCT stasjonsnummer FROM 'Stasjon på rute'
-        WHERE JernbanestasjonNavn =:TilStasjon""",
-        {"TilStasjon": TilStasjon}
-    )
-    tilStasjonNummer = cursor.fetchall()[0][0]
-
-
-    retning = 1
-
-    if fraStasjonNummer>tilStasjonNummer:
-        retning = 0
-    elif fraStasjonNummer<tilStasjonNummer:
-        retning = 1
+    if retning == 1:
+        cursor.execute(
+            """SELECT Seteplass FROM Billett
+            INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
+            INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
+            WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= fraStasjonnummer AND s1.Stasjonsnummer <= fraStasjonnummer) """,
+            {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
+        )
     else:
-        print("Startstasjon og endestasjon er like")
-        return
-    
-    
-    cursor.execute(
-        """SELECT Seteplass FROM Billett
-        WHERE RuteID =:RuteID AND TogruteDato =:Dato AND Vognnummer =:vognnummer""",
-        {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer}
-    )
+        cursor.execute(
+            """SELECT Seteplass FROM Billett
+            INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
+            INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
+            WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= fraStasjonnummer AND s1.Stasjonsnummer >= fraStasjonnummer) """,
+            {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
+        )
     result = cursor.fetchall()
     print (result)
     for i in result[0]:
