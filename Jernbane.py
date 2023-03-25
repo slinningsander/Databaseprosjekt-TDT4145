@@ -97,8 +97,71 @@ def finnInformasjon(kundenummer):
 
 
 # Funksjon for brukerhistorie G
-def kjøpBillett():
-    pass
+def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
+    cursor.execute(
+        """SELECT * FROM Kunde
+        WHERE kundenummer =:kundenummer""",
+        {"kundenummer": kundenummer}
+    )
+    if (len(cursor.fetchall()) == 0):
+        print("Kunden finnes ikke")
+        return
+    cursor.execute(
+        """SELECT * FROM Togruteforekomst
+        WHERE Dato =:Dato AND RuteID =:RuteID""",
+        {"RuteID": RuteID, "Dato": dato}
+    )
+    if (len(cursor.fetchall()) == 0):
+        print("Toget kjører ikke på den oppgitte datoen.")
+        return
+    
+    cursor.execute(
+        """SELECT VognNavn, vognnummer FROM Togruteforekomst
+        INNER JOIN vognoppsett USING (RuteID)
+        where Dato =:Dato AND RuteID =:RuteID""",
+        {"RuteID": RuteID, "Dato": dato}
+    )
+    vognList = cursor.fetchall()
+    print("Her er vognene som er ledige på denne togruten: ")
+    for i in vognList:
+        print("Vognnavn: ", i[0], "Vognnummer: ", i[1])
+    vognnummer = int(input("Hvilken vogn vil du reise i? "))
+    vognnavn = ""
+
+    for i in vognList:
+        if i[1] == vognnummer:
+            vognnavn = i[0]
+    
+    print(vognnavn)
+
+    cursor.execute(
+        """SELECT AntallRader, AntallSeterPerRad  FROM vognmodell
+        WHERE Navn =:vognnavn""",
+        {"vognnavn": vognnavn}
+    )
+    
+    tuppel = cursor.fetchall()[0]
+    maxAntallPlasser = tuppel[0] * tuppel[1]
+
+    ledigeSeteplasser = []
+    for i in range(1,maxAntallPlasser+1):
+        ledigeSeteplasser.append(i)
+    
+    
+    cursor.execute(
+        """SELECT Seteplass FROM Billett
+        INNER JOIN Togruteforekomst ON (Billett.RuteID = Togruteforekomst.RuteID) AND (Billett.TogruteDato = Togruteforekomst.Dato)
+        WHERE Billett.RuteID =:RuteID AND Dato =:Dato AND Vognnummer =:vognnummer""",
+        {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer}
+    )
+    result = cursor.fetchall()
+    print (result)
+    for i in result[0]:
+        if i in ledigeSeteplasser:
+            ledigeSeteplasser.remove(i)
+    print("Her er seteplassene som er ledige på denne vognen: ")
+    print(ledigeSeteplasser)
+
 
 
 # Hovedprogram
@@ -111,6 +174,7 @@ while svar != "avslutt":
             \n Skriv 'registrer bruker' for å registrere en ny bruker.
             \n Skriv 'finn rute' for å finne en togrute basert på en startstasjon og en sluttstasjon, med utgangspunkt i en dato og et klokkeslett.
             \n Skriv 'finn informasjon' for å finne informasjon om fremtidige reiser.
+            \n Skriv 'kjøp billett' for å kjøpe en billett.
             \n Skriv 'avslutt' for å avslutte programmet.\n""")
 
     # Brukerhistorie C
@@ -146,8 +210,12 @@ while svar != "avslutt":
     
     # Brukerhistorie G
     elif svar == "kjøp billett":
-        kundenummer = input("Hvilket kundenummer vil du søke for? ")
-        kjøpBillett()
+        kundenummer = input("Hva er ditt kundenummer? ")
+        togruteID = input("Hvilken togrute vil du kjøpe billett for? For eksempel: 'Dagtog fra Trondheim til Bodø'. ")
+        dato = input("Hvilken dato vil du reise på? For eksempel: '03/04/23'. ")
+        FraStasjon = input("Hvilken stasjon vil du reise fra? ")
+        TilStasjon = input("Hvilken stasjon vil du reise til? ")
+        kjøpBillett(kundenummer, dato, togruteID, FraStasjon, TilStasjon)
 
     elif svar == "avslutt":
         con.close()
