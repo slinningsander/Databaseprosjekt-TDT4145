@@ -88,7 +88,7 @@ def finnInformasjon(kundenummer):
     cursor.execute(
         """SELECT BillettID, Kjøpstid, TogruteDato, Seteplass, Sengeplass, Vognummer, FraStasjon, TilStasjon  FROM Kundeordre
         INNER JOIN Billeter USING (Ordrenummer)
-        WHERE KundeID =:kundenummer AND Dato >= strftime('%d/%m/%y', 'now')""",
+        WHERE KundeID =:kundenummer AND Billett.Dato >= strftime('%d/%m/%y', 'now')""",
         {"kundenummer": kundenummer}
     )
     print("Her er dine fremtidige reiser: ")
@@ -97,9 +97,34 @@ def finnInformasjon(kundenummer):
         print("BillettID: ", infoList[0], "Kjøpstid: ", infoList[1], "TogruteDato: ", infoList[2], "Seteplass: ", infoList[3], "Sengeplass: ", infoList[4], "Vognnummer: ", infoList[5], "FraStasjon: ", infoList[6], "TilStasjon: ", infoList[7])
 
 
-# Funksjon for brukerhistorie G
-def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
+def opprettOrdre(kundenummer):
+    cursor.execute(
+        """SELECT * FROM Kunde
+        WHERE kundenummer =:kundenummer""",
+        {"kundenummer": kundenummer}
+    )
+    if (len(cursor.fetchall()) == 0):
+        print("Kunden finnes ikke")
+        return
+
+    kjøpstid =  datetime.datetime.now().strftime("%d/%m/%y %H:%M:%S")
+    cursor.execute("""INSERT INTO "Kundeordre"
+                    ("Kjøpstid", "Kundenummer")
+                    VALUES (:Kjøpstid, :kundenummer);""",
+                    {"Kjøpstid": kjøpstid, "kundenummer": kundenummer})
     
+    con.commit()
+
+    cursor.execute("""SELECT Ordrenummer FROM Kundeordre
+                    WHERE Kjøpstid = :Kjøpstid AND Kundenummer = :kundenummer""",
+                    {"Kjøpstid": kjøpstid, "kundenummer": kundenummer})
+    ordrenummer = cursor.fetchall()[0][0]
+    
+    return ordrenummer
+
+
+# Funksjon for brukerhistorie G
+def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
     retning = 1
 
     cursor.execute(
@@ -126,14 +151,7 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
         return
     
     
-    cursor.execute(
-        """SELECT * FROM Kunde
-        WHERE kundenummer =:kundenummer""",
-        {"kundenummer": kundenummer}
-    )
-    if (len(cursor.fetchall()) == 0):
-        print("Kunden finnes ikke")
-        return
+    
     cursor.execute(
         """SELECT * FROM Togruteforekomst
         WHERE Dato =:Dato AND RuteID =:RuteID""",
@@ -204,6 +222,17 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
     else:
         print("Her er seteplassene som er ledige på denne vognen: ")
         print(ledigeSeteplasser)
+        seteplass = int(input("Hvilken seteplass vil du reise i? "))
+        if seteplass not in ledigeSeteplasser:
+            print("Seteplassen er ikke ledig")
+            return
+
+    cursor.execute(
+        """INSERT INTO Billett (Seteplass, Vognnummer, Ordrenummer, FraStasjon, TilStasjon, RuteID, TogruteDato)
+            VALUES (:Seteplass, :Vognnummer, :Ordrenummer, :FraStasjon, :TilStasjon, :RuteID, :TogruteDato)""",
+            {"Seteplass": seteplass, "Vkjøp ognnummer": vognnummer, "Ordrenummer": ordreNummer, "FraStasjon": FraStasjon, "TilStasjon": TilStasjon, "RuteID": RuteID, "TogruteDato": dato}
+    )
+    con.commit()
 
 
 
@@ -254,11 +283,14 @@ while svar != "avslutt":
     # Brukerhistorie G
     elif svar == "kjøp billett":
         kundenummer = input("Hva er ditt kundenummer? ")
-        togruteID = input("Hvilken togrute vil du kjøpe billett for? For eksempel: 'Dagtog fra Trondheim til Bodø'. ")
-        dato = input("Hvilken dato vil du reise på? For eksempel: '03/04/23'. ")
-        FraStasjon = input("Hvilken stasjon vil du reise fra? ")
-        TilStasjon = input("Hvilken stasjon vil du reise til? ")
-        kjøpBillett(kundenummer, dato, togruteID, FraStasjon, TilStasjon)
+        ordrenummer = opprettOrdre(kundenummer)
+        antallBilletter = input("Hvor mange billetter vil du kjøpe? ")
+        for i in range(int(antallBilletter)):
+            togruteID = input("Hvilken togrute vil du kjøpe billett for? For eksempel: 'Dagtog fra Trondheim til Bodø'. ")
+            dato = input("Hvilken dato vil du reise på? For eksempel: '03/04/23'. ")
+            FraStasjon = input("Hvilken stasjon vil du reise fra? ")
+            TilStasjon = input("Hvilken stasjon vil du reise til? ")
+            kjøpBillett(ordrenummer, dato, togruteID, FraStasjon, TilStasjon)
 
     elif svar == "avslutt":
         con.close()
