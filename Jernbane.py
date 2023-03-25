@@ -182,7 +182,7 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
             """SELECT Seteplass FROM Billett
             INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
             INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
-            WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= fraStasjonnummer AND s1.Stasjonsnummer <= fraStasjonnummer) """,
+            WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= :fraStasjonnummer AND s1.Stasjonsnummer <= :fraStasjonnummer) """,
             {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
         )
     else:
@@ -190,16 +190,20 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
             """SELECT Seteplass FROM Billett
             INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
             INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
-            WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= fraStasjonnummer AND s1.Stasjonsnummer >= fraStasjonnummer) """,
+            WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= :fraStasjonnummer AND s1.Stasjonsnummer >= :fraStasjonnummer) """,
             {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
         )
     result = cursor.fetchall()
     print (result)
-    for i in result[0]:
-        if i in ledigeSeteplasser:
-            ledigeSeteplasser.remove(i)
-    print("Her er seteplassene som er ledige på denne vognen: ")
-    print(ledigeSeteplasser)
+    for i in result:
+        if i[0] in ledigeSeteplasser:
+            ledigeSeteplasser.remove(i[0])
+    if(len(ledigeSeteplasser) == 0):
+        print("Det er ingen ledige seteplasser på denne vognen")
+        return
+    else:
+        print("Her er seteplassene som er ledige på denne vognen: ")
+        print(ledigeSeteplasser)
 
 
 
