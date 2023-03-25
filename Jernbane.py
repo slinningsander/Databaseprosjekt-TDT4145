@@ -55,6 +55,7 @@ def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
         retning = 1
     else:
         print("Startstasjon og endestasjon er like")
+        return
 
     cursor.execute(
     """SELECT Togrute.RuteID, s1.JernbanestasjonNavn AS Startstasjon, s1.Avgangstid, s2.JernbanestasjonNavn AS Endestasjon, s2.Ankomsttid FROM Togrute
@@ -139,6 +140,7 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
         WHERE Navn =:vognnavn""",
         {"vognnavn": vognnavn}
     )
+   
     
     tuppel = cursor.fetchall()[0]
     maxAntallPlasser = tuppel[0] * tuppel[1]
@@ -147,11 +149,35 @@ def kjøpBillett(kundenummer, dato, RuteID, FraStasjon, TilStasjon):
     for i in range(1,maxAntallPlasser+1):
         ledigeSeteplasser.append(i)
     
+    cursor.execute(
+        """SELECT DISTINCT stasjonsnummer FROM 'Stasjon på rute'
+        WHERE JernbanestasjonNavn =:FraStasjon""",
+        {"FraStasjon": FraStasjon}
+    )
+    fraStasjonNummer = cursor.fetchall()[0][0]
+
+    cursor.execute(
+        """SELECT DISTINCT stasjonsnummer FROM 'Stasjon på rute'
+        WHERE JernbanestasjonNavn =:TilStasjon""",
+        {"TilStasjon": TilStasjon}
+    )
+    tilStasjonNummer = cursor.fetchall()[0][0]
+
+
+    retning = 1
+
+    if fraStasjonNummer>tilStasjonNummer:
+        retning = 0
+    elif fraStasjonNummer<tilStasjonNummer:
+        retning = 1
+    else:
+        print("Startstasjon og endestasjon er like")
+        return
+    
     
     cursor.execute(
         """SELECT Seteplass FROM Billett
-        INNER JOIN Togruteforekomst ON (Billett.RuteID = Togruteforekomst.RuteID) AND (Billett.TogruteDato = Togruteforekomst.Dato)
-        WHERE Billett.RuteID =:RuteID AND Dato =:Dato AND Vognnummer =:vognnummer""",
+        WHERE RuteID =:RuteID AND TogruteDato =:Dato AND Vognnummer =:vognnummer""",
         {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer}
     )
     result = cursor.fetchall()
