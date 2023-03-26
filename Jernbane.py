@@ -89,15 +89,18 @@ def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
 # Funksjon for brukerhistorie H
 def finnInformasjon(kundenummer):
     cursor.execute(
-        """SELECT BillettID, Kjøpstid, TogruteDato, Seteplass, Sengeplass, Vognummer, FraStasjon, TilStasjon  FROM Kundeordre
-        INNER JOIN Billeter USING (Ordrenummer)
-        WHERE KundeID =:kundenummer AND Billett.TogruteDato >= strftime('%d/%m/%y', 'now')""",
+        """SELECT BillettID, Kjøpstid, TogruteDato, Seteplass, Sengeplass, Vognnummer, FraStasjon, TilStasjon  
+        FROM Kundeordre 
+        INNER JOIN Billett USING (Ordrenummer) 
+        WHERE Kundenummer = :kundenummer 
+        AND ('20' || substr(Billett.TogruteDato, 7, 2) || substr(Billett.TogruteDato, 4, 2) || substr(Billett.TogruteDato, 1, 2)) > strftime('%Y%m%d', 'now')""",
         {"kundenummer": kundenummer}
     )
+    #
     print("Her er dine fremtidige reiser: ")
-    for i in cursor.fetchall():
-        infoList = i.split(",")
-        print("BillettID: ", infoList[0], "Kjøpstid: ", infoList[1], "TogruteDato: ", infoList[2], "Seteplass: ", infoList[3], "Sengeplass: ", infoList[4], "Vognnummer: ", infoList[5], "FraStasjon: ", infoList[6], "TilStasjon: ", infoList[7])
+    for billett in cursor.fetchall():
+        print("BillettID: " + str(billett[0]) + " Kjøpstid: " + billett[1] + " TogruteDato: " + billett[2] + " Seteplass: " + str(billett[3]) + " Sengeplass: " + str(billett[4]) + " Vognnummer: " + str(billett[5]) + " FraStasjon: " + billett[6] + " TilStasjon: " + billett[7])
+
 
 # Hjelpefunksjon for å opprette ordre noe som er nødvendig for å kjøpe billetter
 def opprettOrdre(kundenummer):
@@ -321,62 +324,65 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
         
     
 # Hovedprogram
-print("Hei! Velkommen til vårt Jernbaneprogram \n")
-svar = ""
-while svar != "avslutt":
+def main():
+    print("\n VELKOMMEN TIL VÅR JERNBANEAPPLIKASJON ")
+    print("-------------------------------------- \n")
+    svar = ""
+    while svar != "avslutt":
 
-    svar = input("""Hva vil du gjøre? 
-            \n Skriv 'finn stasjon' for å få alle togruter som går på den oppgitte stasjonen på den oppgitte dagen.
-            \n Skriv 'registrer bruker' for å registrere en ny bruker.
-            \n Skriv 'finn rute' for å finne en togrute basert på en startstasjon og en sluttstasjon, med utgangspunkt i en dato og et klokkeslett.
-            \n Skriv 'finn informasjon' for å finne informasjon om fremtidige reiser.
-            \n Skriv 'kjøp billett' for å kjøpe en billett.
-            \n Skriv 'avslutt' for å avslutte programmet.\n""")
+        svar = input(""" Hva vil du gjøre?
+                \n Skriv 'finn stasjon' for å få alle togruter som går på den oppgitte stasjonen på den oppgitte dagen.
+                \n Skriv 'registrer bruker' for å registrere en ny bruker.
+                \n Skriv 'finn rute' for å finne en togrute basert på en startstasjon og en sluttstasjon, med utgangspunkt i en dato og et klokkeslett.
+                \n Skriv 'finn informasjon' for å finne informasjon om dine fremtidige reiser.
+                \n Skriv 'kjøp billett' for å kjøpe en billett.
+                \n Skriv 'avslutt' for å avslutte programmet.\n""")
 
-    # Brukerhistorie C
-    if svar == "finn stasjon":
-        stasjon = input("Hvilken stasjon vil du finne? ")
-        dag = input("Hvilken dag vil du finne? ")
-        print("Her er alle togruter som går på stasjonen", stasjon, "på", dag)
-        getTogruter(stasjon, dag)
+        # Brukerhistorie C
+        if svar == "finn stasjon":
+            stasjon = input("Hvilken stasjon vil du finne? ")
+            dag = input("Hvilken dag vil du finne? ")
+            print("Her er alle togruter som går på stasjonen", stasjon, "på", dag)
+            getTogruter(stasjon, dag)
 
 
-    # Brukerhistorie E
-    elif svar == "registrer bruker":
-        navn = input("Skriv ditt fullstendige navn: ")
-        epost = input("Skriv din epost: ")
-        telefon = input("Skriv ditt telefonnummer: ")
-        addKunde(navn, epost, telefon)
-        print("Kunde registrert")
-        cursor.execute("""SELECT * FROM Kunde""")
-        print(cursor.fetchall())
+        # Brukerhistorie E
+        elif svar == "registrer bruker":
+            navn = input("Skriv ditt fullstendige navn: ")
+            epost = input("Skriv din epost: ")
+            telefon = input("Skriv ditt telefonnummer: ")
+            addKunde(navn, epost, telefon)
+            print("Kunde registrert")
+            cursor.execute("""SELECT * FROM Kunde""")
+            print(cursor.fetchall())
 
-    # Brukerhistorie D
-    elif svar == "finn rute":
-        startstasjon = input("Hvilken startstasjon vil du søke for? ")
-        endestasjon = input("Hvilken endestasjon vil du søke for? ")
-        dato = input("Hvilken dag vil du søke for? ")
-        klokkeslett = input("Hvilken klokkeslett vil du søke for? ")
-        finnRuter(startstasjon, endestasjon, dato, klokkeslett)
+        # Brukerhistorie D
+        elif svar == "finn rute":
+            startstasjon = input("Hvilken startstasjon vil du søke for? ")
+            endestasjon = input("Hvilken endestasjon vil du søke for? ")
+            dato = input("Hvilken dag vil du søke for? ")
+            klokkeslett = input("Hvilken klokkeslett vil du søke for? ")
+            finnRuter(startstasjon, endestasjon, dato, klokkeslett)
 
-    # Brukerhistorie H
-    elif svar == "finn informasjon":
-        kundenummer = input("Hvilket kundenummer vil du søke for? ")
-        finnInformasjon(kundenummer)
-    
-    # Brukerhistorie G
-    elif svar == "kjøp billett":
-        kundenummer = input("Hva er ditt kundenummer? ")
-        ordrenummer = opprettOrdre(kundenummer)
-        antallBilletter = input("Hvor mange billetter vil du kjøpe? (Dersom du skal ha begge sengene i en sovekupe regnes dette som 1) ")
-        for i in range(int(antallBilletter)):
-            togruteID = input("Hvilken togrute vil du kjøpe billett for? For eksempel: 'Dagtog fra Trondheim til Bodø'. ")
-            dato = input("Hvilken dato vil du reise på? For eksempel: '03/04/23'. ")
-            FraStasjon = input("Hvilken stasjon vil du reise fra? ")
-            TilStasjon = input("Hvilken stasjon vil du reise til? ")
-            kjøpBillett(ordrenummer, dato, togruteID, FraStasjon, TilStasjon)
+        # Brukerhistorie H
+        elif svar == "finn informasjon":
+            kundenummer = input("Hvilket kundenummer vil du søke for? ")
+            finnInformasjon(kundenummer)
+        
+        # Brukerhistorie G
+        elif svar == "kjøp billett":
+            kundenummer = input("Hva er ditt kundenummer? ")
+            ordrenummer = opprettOrdre(kundenummer)
+            antallBilletter = input("Hvor mange billetter vil du kjøpe? (Dersom du skal ha begge sengene i en sovekupe regnes dette som 1) ")
+            for i in range(int(antallBilletter)):
+                togruteID = input("Hvilken togrute vil du kjøpe billett for? For eksempel: 'Dagtog fra Trondheim til Bodø'. ")
+                dato = input("Hvilken dato vil du reise på? For eksempel: '03/04/23'. ")
+                FraStasjon = input("Hvilken stasjon vil du reise fra? ")
+                TilStasjon = input("Hvilken stasjon vil du reise til? ")
+                kjøpBillett(ordrenummer, dato, togruteID, FraStasjon, TilStasjon)
 
-    elif svar == "avslutt":
-        con.close()
-        print("Programmet avsluttes")
-        break
+        elif svar == "avslutt":
+            con.close()
+            print("Programmet avsluttes")
+            break
+main()
