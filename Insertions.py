@@ -7,10 +7,11 @@ cursor = con.cursor()
 
 #con.commit()
 
-cursor.execute("""DELETE FROM Billett""")
+cursor.execute("""DELETE FROM 'Stasjon på rute'""")
 
 
 
 con.commit()
+
 
 con.close()
