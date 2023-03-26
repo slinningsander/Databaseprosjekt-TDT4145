@@ -181,7 +181,7 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
     print(vognnavn)
 
     cursor.execute(
-        """SELECT AntallRader, AntallSeterPerRad  FROM vognmodell
+        """SELECT AntallRader, AntallSeterPerRad, AntallKupéer  FROM vognmodell
         WHERE Navn =:vognnavn""",
         {"vognnavn": vognnavn}
     )
@@ -189,50 +189,96 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
     
     tuppel = cursor.fetchall()[0]
     maxAntallPlasser = tuppel[0] * tuppel[1]
+    maxAntallSengePlasser = tuppel[2]
 
     ledigeSeteplasser = []
+    ledigeSengePlasser = []
     for i in range(1,maxAntallPlasser+1):
         ledigeSeteplasser.append(i)
     
+    for i in range(1,maxAntallSengePlasser+1):
+        ledigeSengePlasser.append(i)
 
-    if retning == 1:
-        cursor.execute(
-            """SELECT Seteplass FROM Billett
-            INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
-            INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
-            WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= :fraStasjonnummer AND s1.Stasjonsnummer <= :fraStasjonnummer) """,
-            {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
-        )
-    else:
-        cursor.execute(
-            """SELECT Seteplass FROM Billett
-            INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
-            INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
-            WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= :fraStasjonnummer AND s1.Stasjonsnummer >= :fraStasjonnummer) """,
-            {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
-        )
-    result = cursor.fetchall()
-    print (result)
-    for i in result:
-        if i[0] in ledigeSeteplasser:
-            ledigeSeteplasser.remove(i[0])
-    if(len(ledigeSeteplasser) == 0):
-        print("Det er ingen ledige seteplasser på denne vognen")
-        return
-    else:
-        print("Her er seteplassene som er ledige på denne vognen: ")
-        print(ledigeSeteplasser)
-        seteplass = int(input("Hvilken seteplass vil du reise i? "))
-        if seteplass not in ledigeSeteplasser:
-            print("Seteplassen er ikke ledig")
+    if len(maxAntallSengePlasser) == 0:
+        if retning == 1:
+            cursor.execute(
+                """SELECT Seteplass FROM Billett
+                INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
+                INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
+                WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= :fraStasjonnummer AND s1.Stasjonsnummer <= :fraStasjonnummer) """,
+                {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
+            )
+        else:
+            cursor.execute(
+                """SELECT Seteplass FROM Billett
+                INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
+                INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
+                WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= :fraStasjonnummer AND s1.Stasjonsnummer >= :fraStasjonnummer) """,
+                {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
+            )
+        result = cursor.fetchall()
+        print (result)
+        for i in result:
+            if i[0] in ledigeSeteplasser:
+                ledigeSeteplasser.remove(i[0])
+        if(len(ledigeSeteplasser) == 0):
+            print("Det er ingen ledige seteplasser på denne vognen")
             return
-
-    cursor.execute(
+        else:
+            print("Her er seteplassene som er ledige på denne vognen: ")
+            print(ledigeSeteplasser)
+            seteplass = int(input("Hvilken seteplass vil du reise i? "))
+            if seteplass not in ledigeSeteplasser:
+                print("Seteplassen er ikke ledig")
+                return
+        cursor.execute(
         """INSERT INTO Billett (Seteplass, Vognnummer, Ordrenummer, FraStasjon, TilStasjon, RuteID, TogruteDato)
             VALUES (:Seteplass, :Vognnummer, :Ordrenummer, :FraStasjon, :TilStasjon, :RuteID, :TogruteDato)""",
             {"Seteplass": seteplass, "Vkjøp ognnummer": vognnummer, "Ordrenummer": ordreNummer, "FraStasjon": FraStasjon, "TilStasjon": TilStasjon, "RuteID": RuteID, "TogruteDato": dato}
-    )
-    con.commit()
+        )
+        con.commit()
+            
+    elif len(maxAntallPlasser)==0:
+        if retning == 1:
+            cursor.execute(
+                """SELECT Sengeplass FROM Billett
+                INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
+                INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
+                WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= :fraStasjonnummer AND s1.Stasjonsnummer <= :fraStasjonnummer) """,
+                {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
+            )
+        else:
+            cursor.execute(
+                """SELECT Sengeplass FROM Billett
+                INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
+                INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
+                WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= :fraStasjonnummer AND s1.Stasjonsnummer >= :fraStasjonnummer) """,
+                {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
+            )
+        result = cursor.fetchall()
+        print (result)
+        for i in result:
+            if i[0] in ledigeSengePlasser:
+                ledigeSengePlasser.remove(i[0]) #fjerner ledige seteplasser som er reservert, må legge til slik at den andre sengeplassen i samme kupé også blir fjernet
+        if(len(ledigeSengePlasser) == 0):
+            print("Det er ingen ledige sengeplasser på denne vognen")
+            return
+        else:
+            print("Her er sengeplassene som er ledige på denne vognen: ")
+            print(ledigeSengePlasser)
+            sengeplass = int(input("Hvilken sengeplass vil du reise i? "))
+            if sengeplass not in ledigeSengePlasser:
+                print("Sengeplassen er ikke ledig")
+                return
+        cursor.execute(
+        """INSERT INTO Billett (Sengeplass, Vognnummer, Ordrenummer, FraStasjon, TilStasjon, RuteID, TogruteDato)
+            VALUES (:Sengeplass, :Vognnummer, :Ordrenummer, :FraStasjon, :TilStasjon, :RuteID, :TogruteDato)""",
+            {"Sengeplass": sengeplass, "Vkjøp ognnummer": vognnummer, "Ordrenummer": ordreNummer, "FraStasjon": FraStasjon, "TilStasjon": TilStasjon, "RuteID": RuteID, "TogruteDato": dato}
+        )
+        con.commit()
+            
+
+    
 
 
 
