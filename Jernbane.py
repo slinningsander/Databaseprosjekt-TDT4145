@@ -12,9 +12,10 @@ def getTogruter(stasjon, ukedag):
         {"dag": ukedag, "navn": stasjon}
     )
 
-    togruter = cursor.fetchall()
-
-    print(togruter)
+    ruter = cursor.fetchall()
+    print("Her er alle togruter som går fra", stasjon, "på", ukedag + ":")
+    for rute in ruter:
+        print(rute[0])
 
 
 # Funksjon for brukerhistorie E
@@ -26,6 +27,13 @@ def addKunde(navn, epost, telefon):
         {"navn": navn, "epost": epost, "telefon": telefon}
     )
     con.commit()
+
+    cursor.execute(
+        """SELECT Kundenummer FROM Kunde WHERE Navn = :navn AND `E-postadresse` = :epost AND Mobilnummer = :telefon""",
+        {"navn": navn, "epost": epost, "telefon": telefon}
+    )
+    kundenummer = cursor.fetchall()[0][0]
+    print("\n Kunde registrert: " + "\n Navn: " + navn + "\n E-post: " + epost + "\n Telefon: " + telefon + "\n Kundenummer: " + str(kundenummer) + "\n NB! Husk kundenummeret ditt!")
 
 
 # Funksjon for brukerhistorie D
@@ -68,9 +76,9 @@ def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
     {"ukedag": ukedag, "startstasjon": startstasjon, "endestasjon": endestasjon, "retning": retning, "klokkeslett": klokkeslett}
     )
 
-    print("Her er alle togruter som går fra", startstasjon, "til", endestasjon, "på", ukedag, "og", nesteDag)
+    print("Her er alle togruter som går fra", startstasjon, "til", endestasjon, "på", ukedag, "og", nesteDag, "etter klokken", klokkeslett, ":")
     for rute in cursor.fetchall():
-        print("Rute:" + rute[0] + " Startstasjon: " + rute[1] + " Avgangstid: " + rute[2] + " Endestasjon: " + rute[3] + " Ankomsttid: " + rute[4])
+        print("\n Dag: "+ ukedag  + "\n Rute: " + rute[0] + "\n Startstasjon: " + rute[1] + "\n Avgangstid: " + rute[2] + "\n Endestasjon: " + rute[3] + "\n Ankomsttid: " + rute[4])
 
     cursor.execute(
     """SELECT Togrute.RuteID, s1.JernbanestasjonNavn AS Startstasjon, s1.Avgangstid, s2.JernbanestasjonNavn AS Endestasjon, s2.Ankomsttid FROM Togrute
@@ -83,8 +91,7 @@ def finnRuter(startstasjon, endestasjon, dato, klokkeslett):
     )
 
     for rute in cursor.fetchall():
-        print("Rute:" + rute[0] + " Startstasjon: " + rute[1] + " Avgangstid: " + rute[2] + " Endestasjon: " + rute[3] + " Ankomsttid: " + rute[4])
-    
+        print("\n Dag: "+ nesteDag  + "\n Rute: " + rute[0] + "\n Startstasjon: " + rute[1] + "\n Avgangstid: " + rute[2] + "\n Endestasjon: " + rute[3] + "\n Ankomsttid: " + rute[4])    
 
 # Funksjon for brukerhistorie H
 def finnInformasjon(kundenummer):
@@ -206,6 +213,9 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
     except TypeError:
         maxAntallSengePlasser = 0
 
+    print("Antall seteplasser: ", maxAntallPlasser)
+    print("Antall sengeplasser: ", maxAntallSengePlasser)
+
     #Setter først alle plassene til ledige
     ledigeSeteplasser = []
     ledigeSengePlasser = []
@@ -221,18 +231,18 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
         #Deretter må man sjekke retningen for å finne ut hvilke plasser som er opptatt
         if retning == 1:
             cursor.execute(
-                """SELECT Seteplass FROM Billett
+                """SELECT DISTINCT Seteplass FROM Billett
                 INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
                 INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
-                WHERE (s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= :fraStasjonnummer AND s1.Stasjonsnummer <= :fraStasjonnummer) AND Billett.TogruteDato = :Dato AND Billett.Vognnummer = :vognnummer AND Billett.RuteID = :RuteID""",
+                WHERE ((s1.Stasjonsnummer >= :fraStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s2.Stasjonsnummer >= :tilStasjonnummer AND s2.Stasjonsnummer <= :tilStasjonnummer) OR (s1.Stasjonsnummer >= :fraStasjonnummer AND s1.Stasjonsnummer <= :fraStasjonnummer)) AND Billett.TogruteDato = :Dato AND Billett.Vognnummer = :vognnummer AND Billett.RuteID = :RuteID""",
                 {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
             )
         else:
             cursor.execute(
-                """SELECT Seteplass FROM Billett
+                """SELECT DISTINCT Seteplass FROM Billett
                 INNER JOIN 'Stasjon på rute' s1 ON s1.RuteID = Billett.RuteID AND Billett.FraStasjon = s1.JernbanestasjonNavn
                 INNER JOIN 'Stasjon på rute' s2 ON s2.RuteID = Billett.RuteID AND Billett.TilStasjon = s2.JernbanestasjonNavn
-                WHERE (s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= :fraStasjonnummer AND s1.Stasjonsnummer >= :fraStasjonnummer) AND Billett.TogruteDato = :Dato AND Billett.Vognnummer = :vognnummer AND Billett.RuteID = :RuteID""",
+                WHERE ((s1.Stasjonsnummer <= :fraStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s2.Stasjonsnummer <= :tilStasjonnummer AND s2.Stasjonsnummer >= :tilStasjonnummer) OR (s1.Stasjonsnummer <= :fraStasjonnummer AND s1.Stasjonsnummer >= :fraStasjonnummer)) AND Billett.TogruteDato = :Dato AND Billett.Vognnummer = :vognnummer AND Billett.RuteID = :RuteID""",
                 {"RuteID": RuteID, "Dato": dato, "vognnummer": vognnummer, "fraStasjonnummer": fraStasjonNummer, "tilStasjonnummer": tilStasjonNummer}
             )
         result = cursor.fetchall()
@@ -298,9 +308,9 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
         nesteSengeplass = None
         if beggeSengeplassene == "ja":
             if sengeplass % 2 == 0:
-                nesteSengeplass = sengeplass + 1
-            elif sengeplass % 2 == 1:
                 nesteSengeplass = sengeplass - 1
+            elif sengeplass % 2 == 1:
+                nesteSengeplass = sengeplass + 1
                 
         cursor.execute(
         """INSERT INTO Billett (Sengeplass, Vognnummer, Ordrenummer, FraStasjon, TilStasjon, RuteID, TogruteDato)
@@ -330,7 +340,7 @@ def main():
     svar = ""
     while svar != "avslutt":
 
-        svar = input(""" Hva vil du gjøre?
+        svar = input("""\n Hva vil du gjøre?
                 \n Skriv 'finn stasjon' for å få alle togruter som går på den oppgitte stasjonen på den oppgitte dagen.
                 \n Skriv 'registrer bruker' for å registrere en ny bruker.
                 \n Skriv 'finn rute' for å finne en togrute basert på en startstasjon og en sluttstasjon, med utgangspunkt i en dato og et klokkeslett.
@@ -342,7 +352,6 @@ def main():
         if svar == "finn stasjon":
             stasjon = input("Hvilken stasjon vil du finne? ")
             dag = input("Hvilken dag vil du finne? ")
-            print("Her er alle togruter som går på stasjonen", stasjon, "på", dag)
             getTogruter(stasjon, dag)
 
 
@@ -352,16 +361,13 @@ def main():
             epost = input("Skriv din epost: ")
             telefon = input("Skriv ditt telefonnummer: ")
             addKunde(navn, epost, telefon)
-            print("Kunde registrert")
-            cursor.execute("""SELECT * FROM Kunde""")
-            print(cursor.fetchall())
 
         # Brukerhistorie D
         elif svar == "finn rute":
             startstasjon = input("Hvilken startstasjon vil du søke for? ")
             endestasjon = input("Hvilken endestasjon vil du søke for? ")
-            dato = input("Hvilken dag vil du søke for? ")
-            klokkeslett = input("Hvilken klokkeslett vil du søke for? ")
+            dato = input("Hvilken dato vil du søke for? (dd/mm/yy) ")
+            klokkeslett = input("Hvilket klokkeslett vil du søke for? (hh:mm)")
             finnRuter(startstasjon, endestasjon, dato, klokkeslett)
 
         # Brukerhistorie H
@@ -376,7 +382,7 @@ def main():
             antallBilletter = input("Hvor mange billetter vil du kjøpe? (Dersom du skal ha begge sengene i en sovekupe regnes dette som 1) ")
             for i in range(int(antallBilletter)):
                 togruteID = input("Hvilken togrute vil du kjøpe billett for? For eksempel: 'Dagtog fra Trondheim til Bodø'. ")
-                dato = input("Hvilken dato vil du reise på? For eksempel: '03/04/23'. ")
+                dato = input("Hvilken dato vil du reise på? (dd/mm/yy)")
                 FraStasjon = input("Hvilken stasjon vil du reise fra? ")
                 TilStasjon = input("Hvilken stasjon vil du reise til? ")
                 kjøpBillett(ordrenummer, dato, togruteID, FraStasjon, TilStasjon)

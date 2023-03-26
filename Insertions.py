@@ -7,8 +7,10 @@ cursor = con.cursor()
 
 #con.commit()
 
-cursor.execute("""SELECT * FROM 'Billett'""")
+cursor.execute("""DELETE FROM Billett""")
 
 
-print(cursor.fetchall())
+
+con.commit()
+
 con.close()
