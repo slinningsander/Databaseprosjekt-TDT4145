@@ -314,16 +314,12 @@ def kjøpBillett(ordreNummer, dato, RuteID, FraStasjon, TilStasjon):
                 {"Sengeplass": nesteSengeplass, "Vognnummer": vognnummer, "Ordrenummer": ordreNummer, "FraStasjon": FraStasjon, "TilStasjon": TilStasjon, "RuteID": RuteID, "TogruteDato": dato}
             )
             con.commit()
+            print("Billetter kjøpt!")
         except:
+            print("Billett kjøpt!")
             pass
         
     
-            
-
-    
-
-
-
 # Hovedprogram
 print("Hei! Velkommen til vårt Jernbaneprogram \n")
 svar = ""
